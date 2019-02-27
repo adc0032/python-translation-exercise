@@ -77,6 +77,15 @@ def reverse_and_complement(sequence):
 
     If `sequence` is empty, an empty string is returned.
     """
+    if sequence:
+        rseq = get_reverse(sequence)
+        rcseq = get_complement(rseq)
+        return rcseq
+
+    else:
+    
+        return ''
+    
     pass
 
 def get_longest_peptide(rna_sequence, genetic_code):
