@@ -21,7 +21,8 @@ def translate_sequence(rna_sequence, genetic_code):
                 return ''
             else:
                 translate=''
-                for i in range(0, len(seq),3):
+                rm = len(seq)%3
+                for i in range(0, (len(seq)-rm),3):
                     codon= genetic_code[seq[i:i+3]]
                     if codon == '*':
                         break
