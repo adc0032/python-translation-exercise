@@ -52,13 +52,31 @@ def get_all_translations(rna_sequence, genetic_code):
     If no amino acids can be translated from `rna_sequence`, an empty list is
     returned.
     """
-    pass
+    seq= rna_sequence.upper()
+    numbase=len(seq)
+    stop = numbase-3
+    if stop <0:
+        return []
+    Prot = []
+    for start in range(stop + 1):
+        codon = seq[start:start+3]
+    
+        if codon == "AUG":
+            pseq = translate_sequence(rna_sequence= rna_sequence[start:], genetic_code= genetic_code)
+            if pseq:
+                Prot.append(pseq)
+    return Prot
+    
 
+
+#example code from class
+# for c in sequence:
+    #comp_seq=""
+    #comp_seq += comp_bases[c]
+   #return comp_seq
 def get_reverse(sequence):
     """Reverse orientation of `sequence`.
-
     Returns a string with `sequence` in the reverse order.
-
     If `sequence` is empty, an empty string is returned.
     """
     if sequence:
@@ -74,9 +92,7 @@ def get_reverse(sequence):
 
 def get_complement(sequence):
     """Get the complement of `sequence`.
-
     Returns a string with the complementary sequence of `sequence`.
-
     If `sequence` is empty, an empty string is returned.
     """
     
@@ -91,6 +107,7 @@ def get_complement(sequence):
 
     pass
 
+
 def reverse_and_complement(sequence):
     """Get the reversed and complemented form of `sequence`.
 
@@ -100,7 +117,7 @@ def reverse_and_complement(sequence):
     If `sequence` is empty, an empty string is returned.
     """
     if sequence:
-        rseq = get_reverse(sequence)
+        rseq = get_reverse(sequence= sequence)
         rcseq = get_complement(rseq)
         return rcseq
 
@@ -121,33 +138,56 @@ def get_longest_peptide(rna_sequence, genetic_code):
     If no amino acids can be translated from `rna_sequence` nor its reverse and
     complement, an empty list is returned.
     """
+    Prots = get_all_translations(rna_sequence = rna_sequence,
+            genetic_code = genetic_code)
+    Rcseq = reverse_and_complement(rna_sequence)
+    Rctran = get_all_translations(rna_sequence = Rcseq,
+            genetic_code = genetic_code)
+    Prots += Rctran
+    if not Prots:
+        return ""
+    if len(Prots) < 2:
+        return Prots[0]
+    most_number_of_bases = -1
+    longest_peptide_index = -1
+    for i, prot in enumerate(Prots):
+        if len(prot) > most_number_of_bases:
+            longest_peptide_index = i
+            most_number_of_bases = len(prot)
+    return Prots[longest_peptide_index]
+
     pass
 
 
 if __name__ == '__main__':
     genetic_code = {'GUC': 'V', 'ACC': 'T', 'GUA': 'V', 'GUG': 'V', 'ACU': 'T', 'AAC': 'N', 'CCU': 'P', 'UGG': 'W', 'AGC': 'S', 'AUC': 'I', 'CAU': 'H', 'AAU': 'N', 'AGU': 'S', 'GUU': 'V', 'CAC': 'H', 'ACG': 'T', 'CCG': 'P', 'CCA': 'P', 'ACA': 'T', 'CCC': 'P', 'UGU': 'C', 'GGU': 'G', 'UCU': 'S', 'GCG': 'A', 'UGC': 'C', 'CAG': 'Q', 'GAU': 'D', 'UAU': 'Y', 'CGG': 'R', 'UCG': 'S', 'AGG': 'R', 'GGG': 'G', 'UCC': 'S', 'UCA': 'S', 'UAA': '*', 'GGA': 'G', 'UAC': 'Y', 'GAC': 'D', 'UAG': '*', 'AUA': 'I', 'GCA': 'A', 'CUU': 'L', 'GGC': 'G', 'AUG': 'M', 'CUG': 'L', 'GAG': 'E', 'CUC': 'L', 'AGA': 'R', 'CUA': 'L', 'GCC': 'A', 'AAA': 'K', 'AAG': 'K', 'CAA': 'Q', 'UUU': 'F', 'CGU': 'R', 'CGC': 'R', 'CGA': 'R', 'GCU': 'A', 'GAA': 'E', 'AUU': 'I', 'UUG': 'L', 'UUA': 'L', 'UGA': '*', 'UUC': 'F'}
-    rna_seq = ("AUG"
-            "UAC"
-            "UGG"
-            "CAC"
-            "GCU"
-            "ACU"
-            "GCU"
-            "CCA"
-            "UAU"
-            "ACU"
-            "CAC"
-            "CAG"
-            "AAU"
-            "AUC"
-            "AGU"
-            "ACA"
-            "GCG")
-    longest_peptide = get_longest_peptide(rna_sequence = rna_seq,
+#    rna_seq = ("AUG"
+#            "UAC"
+#            "UGG"
+#            "CAC"
+#            "GCU"
+#            "ACU"
+#            "GCU"
+#            "CCA"
+#            "UAU"
+#            "ACU"
+#            "CAC"
+#            "CAG"
+#            "AAU"
+#            "AUC"
+#            "AGU"
+#            "ACA"
+#            "GCG")
+
+    if len(sys.argv) != 2:
+        print("Script Needs RNA Seq")
+        sys.exit()
+    else:
+        longest_peptide = get_longest_peptide(rna_sequence = sys.argv[1],
             genetic_code = genetic_code)
     assert isinstance(longest_peptide, str), "Oops: the longest peptide is {0}, not a string".format(longest_peptide)
     message = "The longest peptide encoded by\n\t'{0}'\nis\n\t'{1}'\n".format(
-            rna_seq,
+            sys.argv[1],
             longest_peptide)
     sys.stdout.write(message)
     if longest_peptide == "MYWHATAPYTHQNISTA":
